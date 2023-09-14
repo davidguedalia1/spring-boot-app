@@ -1,6 +1,8 @@
 package com.david.customer;
 
+import com.david.exception.DuplicateResourceException;
 import com.david.exception.ResourceNotFound;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
@@ -12,7 +14,7 @@ public class CustomerService {
 
     private final CustomerDao customerDao;
 
-    public CustomerService(CustomerDao customerDao) {
+    public CustomerService(@Qualifier("jpa") CustomerDao customerDao) {
         this.customerDao = customerDao;
     }
 
@@ -24,6 +26,22 @@ public class CustomerService {
                 .orElseThrow(() -> new ResourceNotFound(
                         "customer %s not found".formatted(id)
                 ));
+    }
+
+    public void addCustomer(CustomerRegistrationRequest customerRegistrationRequest){
+        if (customerDao.existsPersonWithEmail(customerRegistrationRequest.email())) {
+            throw new DuplicateResourceException("email already taken");
+        }
+        else {
+            customerDao.insertCustomer(
+                    new Customer(
+                            customerRegistrationRequest.name(),
+                            customerRegistrationRequest.email(),
+                            customerRegistrationRequest.age()
+                    )
+            );
+        }
+        // check if email exists
     }
 
 }

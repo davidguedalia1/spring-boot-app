@@ -1,7 +1,10 @@
 package com.david.customer;
 
+import jakarta.persistence.*;
+
 import java.util.Objects;
 
+@Entity
 public class Customer {
 
     public Customer(){}
@@ -12,7 +15,23 @@ public class Customer {
         this.age = age;
     }
 
+    public Customer(String name, String email, Integer age) {
+        this.name = name;
+        this.email = email;
+        this.age = age;
+    }
+
+    @Id
+    @SequenceGenerator(
+            name = "customer_id_seq",
+            sequenceName = "customer_id_seq"
+    )
+    @GeneratedValue(
+            strategy = GenerationType.SEQUENCE,
+            generator = "customer_id_seq"
+    )
     private Integer id;
+    @Column(nullable = false)
     private String name;
     private String email;
     private Integer age;
